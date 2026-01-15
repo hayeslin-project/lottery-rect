@@ -270,7 +270,13 @@ function initParticles() {
       this.vx = (Math.random() - 0.5) * 0.5
       this.vy = (Math.random() - 0.5) * 0.5
       this.size = Math.random() * 3 + 1
-      this.color = `hsla(${Math.random() * 60 + 250}, 70%, 60%, ${Math.random() * 0.3 + 0.1})`
+      // 赛博朋克配色：青色和粉色
+      const colors = [
+        `rgba(0, 255, 249, ${Math.random() * 0.4 + 0.2})`, // 霓虹青
+        `rgba(255, 0, 255, ${Math.random() * 0.3 + 0.1})`, // 霓虹粉
+        `rgba(157, 0, 255, ${Math.random() * 0.3 + 0.1})`, // 电子紫
+      ]
+      this.color = colors[Math.floor(Math.random() * colors.length)]
     }
 
     update() {
@@ -308,7 +314,7 @@ function initParticles() {
 
         if (distance < 150) {
           ctx.beginPath()
-          ctx.strokeStyle = `rgba(139, 92, 246, ${0.1 * (1 - distance / 150)})`
+          ctx.strokeStyle = `rgba(0, 255, 249, ${0.15 * (1 - distance / 150)})`
           ctx.lineWidth = 1
           ctx.moveTo(particles[i].x, particles[i].y)
           ctx.lineTo(particles[j].x, particles[j].y)
@@ -336,8 +342,50 @@ function initParticles() {
 
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+  background: #0a0a0f;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* 网格背景 */
+.app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(rgba(0, 255, 249, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 249, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 扫描线效果 */
+.app::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1) 0px,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 2;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
 }
 
 .particles {
@@ -353,9 +401,10 @@ function initParticles() {
 .header {
   position: relative;
   z-index: 10;
-  background: rgba(15, 15, 26, 0.8);
+  background: rgba(10, 10, 15, 0.95);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #00fff9;
+  box-shadow: 0 0 20px rgba(0, 255, 249, 0.3), inset 0 -1px 0 rgba(255, 0, 255, 0.3);
 }
 
 .header-content {
@@ -377,23 +426,45 @@ function initParticles() {
 
 .logo-icon {
   font-size: 32px;
-  animation: bounce 2s infinite;
+  animation: glitch-icon 3s infinite;
+  filter: drop-shadow(0 0 10px #00fff9);
 }
 
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+@keyframes glitch-icon {
+  0%, 90%, 100% { transform: translateY(0) skew(0deg); filter: drop-shadow(0 0 10px #00fff9); }
+  92% { transform: translateY(-2px) skew(-2deg); filter: drop-shadow(2px 0 10px #ff00ff) drop-shadow(-2px 0 10px #00fff9); }
+  94% { transform: translateY(2px) skew(2deg); filter: drop-shadow(-2px 0 10px #ff00ff) drop-shadow(2px 0 10px #00fff9); }
+  96% { transform: translateY(-1px) skew(-1deg); filter: drop-shadow(0 0 10px #00fff9); }
 }
 
 .title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%, #f093fb 100%);
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  background: linear-gradient(90deg, #00fff9 0%, #ff00ff 50%, #00fff9 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin: 0;
-  letter-spacing: 2px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  animation: gradient-shift 3s linear infinite, text-flicker 4s infinite;
+  text-shadow: 0 0 20px rgba(0, 255, 249, 0.5);
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes text-flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  96% { opacity: 0.9; }
+  97% { opacity: 1; }
 }
 
 .nav {
@@ -406,26 +477,50 @@ function initParticles() {
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  color: #9ca3af;
+  background: rgba(0, 255, 249, 0.05);
+  border: 1px solid rgba(0, 255, 249, 0.3);
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 14px;
   font-weight: 500;
+  font-family: 'Share Tech Mono', monospace;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 249, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-btn:hover::before {
+  left: 100%;
 }
 
 .nav-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 255, 249, 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.3), inset 0 0 15px rgba(0, 255, 249, 0.1);
   transform: translateY(-2px);
+  border-color: #00fff9;
 }
 
 .nav-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, rgba(0, 255, 249, 0.2) 0%, rgba(255, 0, 255, 0.2) 100%);
+  border: 2px solid;
+  border-image: linear-gradient(135deg, #00fff9, #ff00ff) 1;
+  color: #fff;
+  box-shadow: 0 0 25px rgba(0, 255, 249, 0.5), 0 0 50px rgba(255, 0, 255, 0.3), inset 0 0 20px rgba(0, 255, 249, 0.2);
+  text-shadow: 0 0 10px #00fff9;
 }
 
 .main {
@@ -455,14 +550,14 @@ function initParticles() {
   min-height: calc(100vh - 200px);
 }
 
-/* Modal styles */
+/* Modal styles - Cyberpunk */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -472,15 +567,29 @@ function initParticles() {
 }
 
 .modal-content {
-  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  background: linear-gradient(135deg, #0a0a0f 0%, #151520 100%);
+  border: 2px solid #00fff9;
+  border-radius: 4px;
   padding: 32px;
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
   animation: scaleIn 0.3s ease;
+  box-shadow: 0 0 30px rgba(0, 255, 249, 0.3), inset 0 0 30px rgba(0, 255, 249, 0.05);
+  position: relative;
+}
+
+.modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00fff9, #ff00ff, #00fff9);
+  animation: gradient-shift 2s linear infinite;
+  background-size: 200% auto;
 }
 
 @keyframes scaleIn {
@@ -505,23 +614,28 @@ function initParticles() {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #fff;
+  color: #00fff9;
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .close-btn {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #9ca3af;
+  border-radius: 4px;
+  background: rgba(255, 0, 255, 0.1);
+  border: 1px solid #ff00ff;
+  color: #ff00ff;
   font-size: 18px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.5);
   color: #fff;
 }
 
@@ -534,89 +648,164 @@ function initParticles() {
   gap: 16px;
   margin-bottom: 24px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 249, 0.03);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 249, 0.2);
+  transition: all 0.3s;
+}
+
+.help-section:hover {
+  border-color: #00fff9;
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.2);
 }
 
 .help-icon {
   font-size: 32px;
+  filter: drop-shadow(0 0 5px #00fff9);
 }
 
 .help-section h3 {
   margin: 0 0 8px 0;
   font-size: 16px;
-  color: #e2e8f0;
+  color: #00fff9;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .help-section p {
   margin: 0;
   font-size: 14px;
-  color: #9ca3af;
+  color: #8a8a9a;
   line-height: 1.6;
 }
 
 .csv-example {
   padding: 20px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
   margin-top: 24px;
+  border: 1px solid rgba(0, 255, 249, 0.2);
 }
 
 .csv-example h4 {
   margin: 0 0 12px 0;
   font-size: 14px;
-  color: #9ca3af;
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .csv-example pre {
   margin: 0;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
   font-size: 13px;
-  color: #a5b4fc;
+  color: #00fff9;
   overflow-x: auto;
   line-height: 1.8;
+  font-family: 'Share Tech Mono', monospace;
+  border: 1px solid rgba(0, 255, 249, 0.1);
 }
 
 .modal-btn {
   width: 100%;
   padding: 14px;
   border: none;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .modal-btn.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(0, 255, 249, 0.2) 0%, rgba(255, 0, 255, 0.2) 100%);
+  color: #00fff9;
+  border: 2px solid #00fff9;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-btn.primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 249, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.modal-btn.primary:hover::before {
+  left: 100%;
 }
 
 .modal-btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 25px rgba(0, 255, 249, 0.5), 0 0 50px rgba(255, 0, 255, 0.3);
+  text-shadow: 0 0 10px #00fff9;
 }
 
-/* Result modal */
+/* Result modal - Cyberpunk */
 .result-modal {
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
-  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(10, 10, 15, 0.98) 0%, rgba(21, 21, 32, 0.98) 100%);
+  border: 2px solid #ff00ff;
+  border-radius: 4px;
   padding: 40px;
   text-align: center;
   animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 50px rgba(255, 0, 255, 0.5), 0 0 100px rgba(0, 255, 249, 0.3), inset 0 0 30px rgba(255, 0, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.result-modal::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, #00fff9, transparent, #ff00ff, transparent);
+  animation: rotate-border 4s linear infinite;
+  opacity: 0.3;
+}
+
+@keyframes rotate-border {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.result-modal::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: linear-gradient(135deg, rgba(10, 10, 15, 0.98) 0%, rgba(21, 21, 32, 0.98) 100%);
+  border-radius: 2px;
+  z-index: 0;
 }
 
 .result-header {
   font-size: 32px;
   font-weight: 700;
-  color: white;
+  color: #ff00ff;
   margin-bottom: 32px;
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  text-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 40px rgba(255, 0, 255, 0.5);
+  animation: neon-pulse 2s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes neon-pulse {
+  0%, 100% { text-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 40px rgba(255, 0, 255, 0.5); }
+  50% { text-shadow: 0 0 30px rgba(255, 0, 255, 1), 0 0 60px rgba(255, 0, 255, 0.8), 0 0 80px rgba(0, 255, 249, 0.5); }
 }
 
 .result-body {
@@ -624,6 +813,8 @@ function initParticles() {
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .result-card {
@@ -631,22 +822,34 @@ function initParticles() {
   flex-direction: column;
   align-items: center;
   padding: 24px 32px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  background: rgba(0, 255, 249, 0.1);
+  border-radius: 4px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #00fff9;
+  box-shadow: 0 0 20px rgba(0, 255, 249, 0.3), inset 0 0 20px rgba(0, 255, 249, 0.1);
+  animation: card-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes card-glow {
+  0% { box-shadow: 0 0 20px rgba(0, 255, 249, 0.3), inset 0 0 20px rgba(0, 255, 249, 0.1); }
+  100% { box-shadow: 0 0 30px rgba(0, 255, 249, 0.5), 0 0 60px rgba(255, 0, 255, 0.3), inset 0 0 30px rgba(0, 255, 249, 0.2); }
 }
 
 .winner-name {
   font-size: 36px;
   font-weight: 700;
-  color: white;
+  color: #00fff9;
   margin-bottom: 8px;
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.8);
 }
 
 .winner-dept {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .group-modal {
@@ -656,20 +859,26 @@ function initParticles() {
 .group-result-body {
   max-height: 400px;
   overflow-y: auto;
+  position: relative;
+  z-index: 1;
 }
 
 .group-result-item {
   margin-bottom: 24px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: rgba(0, 255, 249, 0.05);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 249, 0.3);
 }
 
 .group-result-item h4 {
   margin: 0 0 16px 0;
   font-size: 20px;
   font-weight: 600;
-  color: white;
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .group-winners {
@@ -680,15 +889,17 @@ function initParticles() {
 
 .group-winner {
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  background: rgba(0, 255, 249, 0.1);
+  border-radius: 4px;
   font-size: 16px;
   font-weight: 500;
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #00fff9;
+  border: 1px solid #00fff9;
+  font-family: 'Share Tech Mono', monospace;
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.2);
 }
 
-/* History */
+/* History - Cyberpunk */
 .history-detail {
   max-height: 400px;
   overflow-y: auto;
@@ -700,12 +911,15 @@ function initParticles() {
 
 .history-prize-header {
   padding: 12px 16px;
-  border-left: 4px solid #667eea;
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 8px;
+  border-left: 4px solid #00fff9;
+  background: rgba(0, 255, 249, 0.1);
+  border-radius: 4px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
   margin-bottom: 12px;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .history-winners {
@@ -717,14 +931,21 @@ function initParticles() {
 
 .history-winner {
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  background: rgba(255, 0, 255, 0.05);
+  border-radius: 4px;
   font-size: 14px;
-  color: #9ca3af;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ff00ff;
+  border: 1px solid rgba(255, 0, 255, 0.3);
+  font-family: 'Share Tech Mono', monospace;
+  transition: all 0.3s;
 }
 
-/* Scrollbar */
+.history-winner:hover {
+  border-color: #ff00ff;
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+
+/* Scrollbar - Cyberpunk */
 .modal-content::-webkit-scrollbar,
 .history-detail::-webkit-scrollbar {
   width: 8px;
@@ -732,19 +953,20 @@ function initParticles() {
 
 .modal-content::-webkit-scrollbar-track,
 .history-detail::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.5);
   border-radius: 4px;
 }
 
 .modal-content::-webkit-scrollbar-thumb,
 .history-detail::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, #00fff9, #ff00ff);
   border-radius: 4px;
 }
 
 .modal-content::-webkit-scrollbar-thumb:hover,
 .history-detail::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(180deg, #00fff9, #ff00ff);
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -762,6 +984,13 @@ function initParticles() {
     flex: 1;
     justify-content: center;
     min-width: calc(50% - 4px);
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .title {
+    font-size: 20px;
+    letter-spacing: 2px;
   }
 
   .result-card {
@@ -775,6 +1004,8 @@ function initParticles() {
 </style>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -783,10 +1014,37 @@ function initParticles() {
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Share Tech Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #0a0a0f;
+  color: #e0e0e0;
 }
 
 #app {
   min-height: 100vh;
+}
+
+/* Cyberpunk 全局滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #00fff9, #ff00ff);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
+}
+
+/* 全局选中样式 */
+::selection {
+  background: rgba(0, 255, 249, 0.3);
+  color: #fff;
 }
 </style>

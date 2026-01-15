@@ -232,10 +232,14 @@ function viewHistory(index: number) {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #00fff9;
   display: flex;
   align-items: center;
   gap: 12px;
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .actions {
@@ -248,32 +252,39 @@ function viewHistory(index: number) {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 20px;
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .action-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
   transform: translateY(-2px);
+  text-shadow: 0 0 10px #00fff9;
 }
 
 .action-btn.danger {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #ef4444;
+  background: rgba(255, 0, 255, 0.1);
+  border-color: #ff00ff;
+  color: #ff00ff;
 }
 
 .action-btn.danger:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+  text-shadow: 0 0 10px #ff00ff;
 }
 
-/* 中奖内容 */
+/* 中奖内容 - Cyberpunk */
 .winner-content {
   margin-bottom: 32px;
 }
@@ -287,46 +298,82 @@ function viewHistory(index: number) {
   align-items: center;
   gap: 12px;
   padding: 16px 20px;
-  border-left: 4px solid #667eea;
-  border-radius: 12px;
+  border-left: 4px solid #00fff9;
+  border-radius: 4px;
   font-weight: 600;
-  color: white;
+  color: #00fff9;
   backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 249, 0.3);
+  position: relative;
+}
+
+.prize-group-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
 }
 
 .prize-icon {
   font-size: 24px;
+  filter: drop-shadow(0 0 5px currentColor);
 }
 
 .prize-title {
   font-size: 18px;
   flex: 1;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .prize-count {
   font-size: 14px;
   opacity: 0.9;
+  font-family: 'Orbitron', monospace;
 }
 
 .winner-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
+  margin-top: 16px;
 }
 
 .winner-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(0, 255, 249, 0.3);
   border-left-width: 4px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+  background: rgba(0, 255, 249, 0.03);
   padding: 20px;
   transition: all 0.3s;
+  position: relative;
+}
+
+.winner-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00fff9, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.winner-card:hover::before {
+  opacity: 1;
 }
 
 .winner-card:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 249, 0.08);
+  border-color: #00fff9;
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 25px rgba(0, 255, 249, 0.2);
 }
 
 .card-header {
@@ -339,30 +386,35 @@ function viewHistory(index: number) {
 .winner-avatar {
   width: 48px;
   height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(0, 255, 249, 0.3) 0%, rgba(255, 0, 255, 0.3) 100%);
+  border: 2px solid #00fff9;
+  color: #00fff9;
   font-size: 20px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Orbitron', monospace;
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.3);
 }
 
 .winner-name {
   font-size: 18px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #00fff9;
   flex: 1;
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 5px rgba(0, 255, 249, 0.5);
 }
 
 .remove-btn {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.2);
-  border: none;
-  color: #ef4444;
+  border-radius: 4px;
+  background: rgba(255, 0, 255, 0.1);
+  border: 1px solid #ff00ff;
+  color: #ff00ff;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
@@ -372,7 +424,8 @@ function viewHistory(index: number) {
 }
 
 .remove-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
   transform: scale(1.1);
 }
 
@@ -387,20 +440,23 @@ function viewHistory(index: number) {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #9ca3af;
+  color: #8a8a9a;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .card-info .info-icon {
   font-size: 16px;
+  filter: drop-shadow(0 0 3px #00fff9);
 }
 
 .card-info.time {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(0, 255, 249, 0.2);
+  color: #ff00ff;
 }
 
-/* 空状态 */
+/* 空状态 - Cyberpunk */
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -409,35 +465,47 @@ function viewHistory(index: number) {
 .empty-icon {
   font-size: 80px;
   margin-bottom: 24px;
-  opacity: 0.5;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 249, 0.3));
+  animation: empty-pulse 2s ease-in-out infinite;
+}
+
+@keyframes empty-pulse {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 255, 249, 0.3)); }
+  50% { filter: drop-shadow(0 0 30px rgba(255, 0, 255, 0.4)); }
 }
 
 .empty-text {
   font-size: 18px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
   margin: 0 0 8px 0;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .empty-hint {
   font-size: 14px;
-  color: #6b7280;
+  color: #8a8a9a;
   margin: 0;
+  font-family: 'Share Tech Mono', monospace;
 }
 
-/* 历史记录 */
+/* 历史记录 - Cyberpunk */
 .history-section {
   padding-top: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid rgba(0, 255, 249, 0.2);
 }
 
 .history-section h4 {
   margin: 0 0 20px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #ff00ff;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 5px rgba(255, 0, 255, 0.3);
 }
 
 .history-list {
@@ -451,15 +519,16 @@ function viewHistory(index: number) {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 249, 0.03);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 249, 0.2);
   transition: all 0.3s;
 }
 
 .history-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(102, 126, 234, 0.2);
+  background: rgba(0, 255, 249, 0.08);
+  border-color: #00fff9;
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.2);
 }
 
 .history-info {
@@ -469,29 +538,36 @@ function viewHistory(index: number) {
 
 .history-count {
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
+  font-family: 'Orbitron', monospace;
 }
 
 .history-time {
-  color: #6b7280;
+  color: #8a8a9a;
   font-size: 14px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .view-btn {
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 20px;
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .view-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
   transform: translateY(-2px);
+  text-shadow: 0 0 10px #00fff9;
 }
 
 @media (max-width: 768px) {
@@ -507,6 +583,12 @@ function viewHistory(index: number) {
   .actions {
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
 </style>

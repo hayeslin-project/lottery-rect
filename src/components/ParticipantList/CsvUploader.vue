@@ -7,6 +7,10 @@
         <p class="upload-text">拖拽文件到此处</p>
         <p class="upload-subtext">或 <span class="upload-link" @click="triggerFileInput">点击上传</span></p>
         <p class="upload-tip">支持 CSV 格式，第一行为列名</p>
+        <button class="download-template-btn" @click.stop="downloadTemplate">
+          <span>📥</span>
+          <span>下载模版</span>
+        </button>
         <input
           ref="fileInput"
           type="file"
@@ -148,7 +152,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useLotteryStore } from '@/stores/lottery'
 import { parseCSV, transformToParticipants, autoDetectColumns } from '@/utils/csv'
@@ -169,6 +173,13 @@ const fileInput = ref<HTMLInputElement | null>(null)
 // 显示的参与者列表（分页）
 const displayParticipants = computed(() => {
   return showAll.value ? participants.value : participants.value.slice(0, 20)
+})
+
+// 组件挂载时，如果没有数据则自动加载示例数据
+onMounted(() => {
+  if (participants.value.length === 0) {
+    loadSampleData(true) // 静默加载，不显示提示
+  }
 })
 
 function triggerFileInput() {
@@ -255,7 +266,30 @@ function clearData() {
   rawCsvData.value = []
 }
 
-function loadSampleData() {
+function downloadTemplate() {
+  // CSV 模版内容
+  const templateContent = `工号,姓名,手机号,部门,权重
+1001,张三,13800138001,技术部,10
+1002,李四,13800138002,市场部,8`
+
+  // 创建 Blob 对象，添加 BOM 以确保 Excel 正确识别中文编码
+  const BOM = '\uFEFF'
+  const blob = new Blob([BOM + templateContent], { type: 'text/csv;charset=utf-8' })
+
+  // 创建下载链接
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = '抽奖名单模版.csv'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
+  ElMessage.success('模版下载成功')
+}
+
+function loadSampleData(silent = false) {
   // 示例 CSV 数据
   const sampleData: string[][] = [
     ['工号', '姓名', '手机号', '部门', '权重'],
@@ -302,7 +336,9 @@ function loadSampleData() {
   // 应用映射
   applyMapping()
 
-  ElMessage.success(`示例数据加载成功，共 ${sampleData.length - 1} 人`)
+  if (!silent) {
+    ElMessage.success(`示例数据加载成功，共 ${sampleData.length - 1} 人`)
+  }
 }
 </script>
 
@@ -311,7 +347,7 @@ function loadSampleData() {
   padding: 24px;
 }
 
-/* 上传区域 */
+/* 上传区域 - Cyberpunk */
 .upload-area {
   margin-bottom: 32px;
 }
@@ -322,67 +358,127 @@ function loadSampleData() {
   align-items: center;
   justify-content: center;
   padding: 48px 32px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px dashed rgba(102, 126, 234, 0.4);
-  border-radius: 24px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 2px dashed rgba(0, 255, 249, 0.4);
+  border-radius: 4px;
   transition: all 0.3s;
   cursor: pointer;
+  position: relative;
+}
+
+.upload-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00fff9, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.upload-content:hover::before,
+.upload-content.drag-over::before {
+  opacity: 1;
+  animation: scan-line 2s linear infinite;
+}
+
+@keyframes scan-line {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .upload-content:hover,
 .upload-content.drag-over {
-  background: rgba(102, 126, 234, 0.1);
-  border-color: rgba(102, 126, 234, 0.8);
+  background: rgba(0, 255, 249, 0.08);
+  border-color: #00fff9;
+  box-shadow: 0 0 30px rgba(0, 255, 249, 0.2), inset 0 0 30px rgba(0, 255, 249, 0.05);
 }
 
 .upload-icon {
   font-size: 64px;
   margin-bottom: 20px;
-  animation: float 3s ease-in-out infinite;
+  animation: cyber-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px #00fff9);
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+@keyframes cyber-float {
+  0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 20px #00fff9); }
+  50% { transform: translateY(-10px); filter: drop-shadow(0 0 30px #ff00ff); }
 }
 
 .upload-text {
   font-size: 18px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
   margin: 0 0 8px 0;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .upload-subtext {
   font-size: 14px;
-  color: #9ca3af;
+  color: #8a8a9a;
   margin: 0 0 12px 0;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .upload-link {
-  color: #667eea;
+  color: #ff00ff;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
+  border-bottom: 1px solid #ff00ff;
+  transition: all 0.3s;
 }
 
 .upload-link:hover {
-  color: #764ba2;
+  text-shadow: 0 0 10px #ff00ff;
 }
 
 .upload-tip {
   font-size: 12px;
-  color: #6b7280;
-  margin: 0;
+  color: #6a6a7a;
+  margin: 0 0 16px 0;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.download-template-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(255, 0, 255, 0.1);
+  border: 1px solid #ff00ff;
+  border-radius: 4px;
+  color: #ff00ff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.download-template-btn:hover {
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.4);
+  transform: translateY(-2px);
+  text-shadow: 0 0 10px #ff00ff;
 }
 
 .hidden-input {
   display: none;
 }
 
-/* 映射配置 */
+/* 映射配置 - Cyberpunk */
 .mapping-config {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 16px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 1px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
   padding: 24px;
   margin-bottom: 32px;
 }
@@ -398,10 +494,14 @@ function loadSampleData() {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .auto-btn {
@@ -409,19 +509,24 @@ function loadSampleData() {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 20px;
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .auto-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
   transform: translateY(-2px);
+  text-shadow: 0 0 10px #00fff9;
 }
 
 .mapping-fields {
@@ -439,41 +544,51 @@ function loadSampleData() {
 .field-label {
   font-size: 13px;
   font-weight: 500;
-  color: #9ca3af;
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .field-label.required::after {
   content: ' *';
-  color: #ef4444;
+  color: #ff00ff;
+  text-shadow: 0 0 5px #ff00ff;
 }
 
 .field-select {
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  color: #e2e8f0;
+  background: rgba(0, 255, 249, 0.05);
+  border: 1px solid rgba(0, 255, 249, 0.3);
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 9L1 4h2l3 5 3-5h2L6 9z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300fff9' d='M6 9L1 4h2l3 5 3-5h2L6 9z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .field-select:hover {
-  border-color: rgba(102, 126, 234, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: #00fff9;
+  background-color: rgba(0, 255, 249, 0.08);
 }
 
 .field-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  border-color: #00fff9;
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.3);
 }
 
-/* 预览区域 */
+.field-select option {
+  background: #0a0a0f;
+  color: #00fff9;
+}
+
+/* 预览区域 - Cyberpunk */
 .preview-section {
   margin-top: 32px;
 }
@@ -488,32 +603,39 @@ function loadSampleData() {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 20px;
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .action-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
   transform: translateY(-2px);
+  text-shadow: 0 0 10px #00fff9;
 }
 
 .action-btn.danger {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #ef4444;
+  background: rgba(255, 0, 255, 0.1);
+  border-color: #ff00ff;
+  color: #ff00ff;
 }
 
 .action-btn.danger:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+  text-shadow: 0 0 10px #ff00ff;
 }
 
-/* 参与者卡片 */
+/* 参与者卡片 - Cyberpunk */
 .participant-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -521,21 +643,39 @@ function loadSampleData() {
   max-height: 500px;
   overflow-y: auto;
   padding: 4px;
+  margin-top: 16px;
 }
 
 .participant-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 2px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
   overflow: hidden;
   transition: all 0.3s;
+  position: relative;
+}
+
+.participant-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00fff9, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.participant-card:hover::before {
+  opacity: 1;
 }
 
 .participant-card:hover {
-  border-color: rgba(102, 126, 234, 0.4);
-  background: rgba(102, 126, 234, 0.05);
+  border-color: #00fff9;
+  background: rgba(0, 255, 249, 0.08);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 25px rgba(0, 255, 249, 0.2);
 }
 
 .card-header {
@@ -543,29 +683,33 @@ function loadSampleData() {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(0, 255, 249, 0.1);
+  border-bottom: 1px solid rgba(0, 255, 249, 0.2);
 }
 
 .participant-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(0, 255, 249, 0.3) 0%, rgba(255, 0, 255, 0.3) 100%);
+  border: 2px solid #00fff9;
+  color: #00fff9;
   font-size: 18px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Orbitron', monospace;
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.3);
 }
 
 .remove-btn {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.2);
-  border: none;
-  color: #ef4444;
+  border-radius: 4px;
+  background: rgba(255, 0, 255, 0.1);
+  border: 1px solid #ff00ff;
+  color: #ff00ff;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.3s;
@@ -575,7 +719,8 @@ function loadSampleData() {
 }
 
 .remove-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.4);
   transform: scale(1.1);
 }
 
@@ -586,14 +731,17 @@ function loadSampleData() {
 .participant-name {
   font-size: 16px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
   margin-bottom: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 5px rgba(0, 255, 249, 0.3);
 }
 
 .participant-info {
   font-size: 13px;
-  color: #6b7280;
+  color: #8a8a9a;
   margin-bottom: 4px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .load-more {
@@ -603,38 +751,42 @@ function loadSampleData() {
 
 .more-btn {
   padding: 10px 24px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  color: #9ca3af;
+  background: rgba(0, 255, 249, 0.05);
+  border: 1px solid rgba(0, 255, 249, 0.3);
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .more-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(102, 126, 234, 0.4);
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.1);
+  border-color: #00fff9;
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.3);
+  text-shadow: 0 0 10px #00fff9;
 }
 
-/* 滚动条样式 */
+/* 滚动条样式 - Cyberpunk */
 .participant-grid::-webkit-scrollbar {
   width: 8px;
 }
 
 .participant-grid::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
 }
 
 .participant-grid::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, #00fff9, #ff00ff);
   border-radius: 4px;
 }
 
 .participant-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -644,6 +796,21 @@ function loadSampleData() {
 
   .participant-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .actions {
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
 </style>

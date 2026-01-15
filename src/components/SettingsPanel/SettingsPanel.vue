@@ -278,10 +278,14 @@ function removePrize(prizeId: string) {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #00fff9;
   display: flex;
   align-items: center;
   gap: 12px;
+  font-family: 'Orbitron', 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .setting-section {
@@ -300,9 +304,11 @@ function removePrize(prizeId: string) {
   margin-bottom: 12px;
   font-size: 14px;
   font-weight: 600;
-  color: #9ca3af;
+  color: #ff00ff;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 5px rgba(255, 0, 255, 0.3);
 }
 
 .add-btn {
@@ -310,22 +316,27 @@ function removePrize(prizeId: string) {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(102, 126, 234, 0.4);
-  border-radius: 20px;
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  border-radius: 4px;
+  color: #00fff9;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .add-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
   transform: translateY(-2px);
+  text-shadow: 0 0 10px #00fff9;
 }
 
-/* 模式选择器 */
+/* 模式选择器 - Cyberpunk */
 .mode-selector {
   display: flex;
   gap: 12px;
@@ -338,34 +349,40 @@ function removePrize(prizeId: string) {
   align-items: center;
   gap: 8px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  color: #9ca3af;
+  background: rgba(0, 255, 249, 0.03);
+  border: 2px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
+  color: #8a8a9a;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .mode-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(102, 126, 234, 0.4);
+  background: rgba(0, 255, 249, 0.08);
+  border-color: rgba(0, 255, 249, 0.5);
   transform: translateY(-2px);
+  color: #00fff9;
 }
 
 .mode-btn.active {
-  background: rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
-  color: #667eea;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  background: rgba(0, 255, 249, 0.15);
+  border-color: #00fff9;
+  color: #00fff9;
+  box-shadow: 0 0 25px rgba(0, 255, 249, 0.3), inset 0 0 20px rgba(0, 255, 249, 0.1);
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .mode-icon {
   font-size: 32px;
+  filter: drop-shadow(0 0 5px currentColor);
 }
 
-/* 奖项卡片 */
+/* 奖项卡片 - Cyberpunk */
 .prizes-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -373,23 +390,50 @@ function removePrize(prizeId: string) {
 }
 
 .prize-card {
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  border: 2px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 255, 249, 0.03);
   cursor: pointer;
   transition: all 0.3s;
+  position: relative;
+}
+
+.prize-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00fff9, transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.prize-card:hover::before {
+  opacity: 1;
 }
 
 .prize-card:hover {
-  border-color: rgba(102, 126, 234, 0.5);
-  background: rgba(102, 126, 234, 0.05);
+  border-color: #00fff9;
+  background: rgba(0, 255, 249, 0.08);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 25px rgba(0, 255, 249, 0.2);
 }
 
 .prize-card.active {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(0, 255, 249, 0.1);
+}
+
+.prize-card.active::before {
+  opacity: 1;
+  animation: scan-line 2s linear infinite;
+}
+
+@keyframes scan-line {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .prize-header {
@@ -402,16 +446,17 @@ function removePrize(prizeId: string) {
 .prize-name {
   font-size: 16px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: #00fff9;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .delete-btn {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.2);
-  border: none;
-  color: #ef4444;
+  border-radius: 4px;
+  background: rgba(255, 0, 255, 0.2);
+  border: 1px solid #ff00ff;
+  color: #ff00ff;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
@@ -421,7 +466,8 @@ function removePrize(prizeId: string) {
 }
 
 .delete-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 0, 255, 0.3);
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
   transform: scale(1.1);
 }
 
@@ -445,10 +491,10 @@ function removePrize(prizeId: string) {
 .count-btn {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  color: #e2e8f0;
+  border-radius: 4px;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  color: #00fff9;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
@@ -459,8 +505,8 @@ function removePrize(prizeId: string) {
 }
 
 .count-btn:hover {
-  background: rgba(102, 126, 234, 0.3);
-  color: #667eea;
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
 }
 
 .count-number {
@@ -468,15 +514,19 @@ function removePrize(prizeId: string) {
   text-align: center;
   font-size: 24px;
   font-weight: 700;
-  color: #e2e8f0;
+  color: #00fff9;
+  font-family: 'Orbitron', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .count-label {
   font-size: 12px;
-  color: #6b7280;
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
 }
 
-/* 分组设置 */
+/* 分组设置 - Cyberpunk */
 .group-settings {
   max-height: 300px;
   overflow-y: auto;
@@ -492,14 +542,16 @@ function removePrize(prizeId: string) {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 1px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .group-checkbox:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 249, 0.08);
+  border-color: rgba(0, 255, 249, 0.5);
 }
 
 .group-checkbox input[type="checkbox"] {
@@ -509,15 +561,16 @@ function removePrize(prizeId: string) {
 .checkbox-custom {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 6px;
+  border: 2px solid rgba(0, 255, 249, 0.5);
+  border-radius: 4px;
   position: relative;
   transition: all 0.3s;
 }
 
 .group-checkbox input:checked + .checkbox-custom {
-  background: #667eea;
-  border-color: #667eea;
+  background: #00fff9;
+  border-color: #00fff9;
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 .group-checkbox input:checked + .checkbox-custom::after {
@@ -526,7 +579,7 @@ function removePrize(prizeId: string) {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: white;
+  color: #0a0a0f;
   font-size: 12px;
   font-weight: 700;
 }
@@ -534,12 +587,14 @@ function removePrize(prizeId: string) {
 .group-name {
   flex: 1;
   font-weight: 500;
-  color: #e2e8f0;
+  color: #00fff9;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .group-count {
   font-size: 12px;
-  color: #6b7280;
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
 .group-prizes {
@@ -552,17 +607,19 @@ function removePrize(prizeId: string) {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
+  background: rgba(255, 0, 255, 0.03);
+  border: 1px solid rgba(255, 0, 255, 0.1);
+  border-radius: 4px;
   margin-bottom: 8px;
 }
 
 .prize-label {
   font-size: 13px;
-  color: #9ca3af;
+  color: #ff00ff;
+  font-family: 'Share Tech Mono', monospace;
 }
 
-/* 选项开关 */
+/* 选项开关 - Cyberpunk */
 .options-container {
   display: flex;
   flex-direction: column;
@@ -574,14 +631,16 @@ function removePrize(prizeId: string) {
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 1px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .option-switch:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 255, 249, 0.08);
+  border-color: rgba(0, 255, 249, 0.5);
 }
 
 .option-switch input[type="checkbox"] {
@@ -591,8 +650,9 @@ function removePrize(prizeId: string) {
 .switch-slider {
   width: 48px;
   height: 26px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
   position: relative;
   transition: all 0.3s;
 }
@@ -602,28 +662,33 @@ function removePrize(prizeId: string) {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  background: #8a8a9a;
+  border-radius: 2px;
   transition: all 0.3s;
 }
 
 .option-switch input:checked + .switch-slider {
-  background: #667eea;
+  background: rgba(0, 255, 249, 0.2);
+  border-color: #00fff9;
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.3);
 }
 
 .option-switch input:checked + .switch-slider::after {
   left: 25px;
+  background: #00fff9;
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.8);
 }
 
 .switch-label {
   font-size: 14px;
-  color: #e2e8f0;
+  color: #e0e0e0;
   font-weight: 500;
+  font-family: 'Share Tech Mono', monospace;
 }
 
-/* 统计信息 */
+/* 统计信息 - Cyberpunk */
 .stats-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -633,36 +698,57 @@ function removePrize(prizeId: string) {
 
 .stat-card {
   padding: 20px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 16px;
+  background: rgba(0, 255, 249, 0.05);
+  border: 2px solid rgba(0, 255, 249, 0.3);
+  border-radius: 4px;
   text-align: center;
   backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 249, 0.1), transparent);
+  animation: stat-shine 3s linear infinite;
+}
+
+@keyframes stat-shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 .stat-icon {
   font-size: 28px;
   margin-bottom: 8px;
+  filter: drop-shadow(0 0 10px #00fff9);
 }
 
 .stat-value {
   font-size: 32px;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #00fff9 0%, #ff00ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 4px;
+  font-family: 'Orbitron', monospace;
 }
 
 .stat-label {
   font-size: 12px;
-  color: #6b7280;
+  color: #8a8a9a;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  font-family: 'Share Tech Mono', monospace;
 }
 
-/* 奖项统计 */
+/* 奖项统计 - Cyberpunk */
 .prize-stats {
   display: flex;
   flex-direction: column;
@@ -675,52 +761,58 @@ function removePrize(prizeId: string) {
   align-items: center;
   gap: 16px;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 1px solid rgba(0, 255, 249, 0.1);
+  border-radius: 4px;
 }
 
 .prize-stat-name {
   font-size: 14px;
   font-weight: 600;
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 5px currentColor;
 }
 
 .prize-stat-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 249, 0.2);
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .prize-stat-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 1px;
   transition: width 0.5s ease;
+  box-shadow: 0 0 10px currentColor;
 }
 
 .prize-stat-count {
   font-size: 13px;
-  color: #9ca3af;
+  color: #00fff9;
   text-align: right;
   font-weight: 500;
+  font-family: 'Share Tech Mono', monospace;
 }
 
-/* 滚动条样式 */
+/* 滚动条样式 - Cyberpunk */
 .group-settings::-webkit-scrollbar {
   width: 6px;
 }
 
 .group-settings::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
 }
 
 .group-settings::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, #00fff9, #ff00ff);
   border-radius: 3px;
 }
 
 .group-settings::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
 }
 
 @media (max-width: 768px) {
@@ -739,6 +831,10 @@ function removePrize(prizeId: string) {
 
   .prize-stat-bar {
     grid-column: 1;
+  }
+
+  .mode-selector {
+    flex-direction: column;
   }
 }
 </style>

@@ -118,3 +118,11 @@ type LotteryMode = 'normal' | 'weighted' | 'group'
 ## 语音播报
 
 使用 Web Speech API (`window.speechSynthesis`) 实现语音播报，在 `src/utils/lottery.ts` 的 `speak()` 函数中实现。需要在抽奖配置中开启 `enableVoice`。
+
+
+
+后续增加需求
+1. 修改赛博朋克样式 
+2. 自动抽奖中奖，不需要停止 
+3. 示例默认显示，可用于演示 
+4. 增加导入csv模版下载
