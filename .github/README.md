@@ -58,3 +58,17 @@
 - 修改 Node.js 版本：更新 workflow 文件中的 node-version
 - 添加测试命令：在 ci.yml 中添加测试步骤
 - 修改部署目标：根据需要配置其他部署服务
+
+## 添加 ESLint 支持（可选）
+如果需要代码检查，可以：
+1. 安装 ESLint：
+```bash
+npm install --save-dev eslint @typescript-eslint/parser eslint-plugin-vue
+```
+2. 创建 .eslintrc.cjs 文件
+3. 在 package.json 中添加 lint 脚本：
+```json
+"scripts": {
+  "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+}
+```
