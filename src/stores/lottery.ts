@@ -41,7 +41,7 @@ export const useLotteryStore = defineStore('lottery', () => {
     enableVoice: false,
     enableAutoComplete: false,
     autoCompleteDuration: 10,
-    autoCompleteSpeed: 'normal',
+    autoCompleteSpeed: 'dramatic',
     autoCompleteStopMode: 'smooth',
   })
 

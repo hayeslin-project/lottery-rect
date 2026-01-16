@@ -127,11 +127,20 @@
             <div class="auto-complete-item">
               <label class="setting-label">抽奖速度</label>
               <select v-model="config.autoCompleteSpeed" class="speed-select">
-                <option value="slow">慢速（每秒5个）</option>
-                <option value="normal">正常（每秒10个）</option>
-                <option value="fast">快速（每秒20个）</option>
-                <option value="very-fast">极速（每秒30个）</option>
+                <option value="ceremonial">🎭 典礼模式（3秒/人）</option>
+                <option value="dramatic">✨ 戏剧模式（2秒/人）</option>
+                <option value="comfortable">😌 舒适模式（1.5秒/人）</option>
+                <option value="quick">⚡ 快速模式（1秒/人）</option>
               </select>
+              <div class="speed-preview">
+                <div class="speed-info">
+                  🎯 预计 {{ currentPrize?.count || 0 }} 人需要
+                  <strong>{{ getEstimatedTime() }}</strong>
+                </div>
+                <div class="speed-atmosphere">
+                  {{ getSpeedAtmosphere() }}
+                </div>
+              </div>
             </div>
             <div class="auto-complete-item">
               <label class="setting-label">停止方式</label>
@@ -192,6 +201,7 @@
 import { ref, computed, watch } from 'vue'
 import { useLotteryStore } from '@/stores/lottery'
 import type { LotteryMode } from '@/utils/lottery'
+import { SPEED_CONFIG } from '@/utils/lottery'
 
 const store = useLotteryStore()
 
@@ -239,6 +249,11 @@ watch(
   },
   { immediate: true }
 )
+
+// 监听速度变化，更新预览
+watch([config, currentPrizeId], () => {
+  // 这里不需要具体操作，只是触发重新渲染
+})
 
 // 获取部门参与人数
 function deptParticipantCount(dept: string) {
@@ -309,6 +324,43 @@ function updateAutoCompleteDuration(delta: number) {
   const current = config.value.autoCompleteDuration || 10
   const newValue = Math.max(3, Math.min(30, current + delta))
   store.updateConfig({ autoCompleteDuration: newValue })
+}
+
+// 计算预计抽奖时间
+function getEstimatedTime(): string {
+  const count = currentPrize.value?.count || 0
+  if (count === 0) return '0秒'
+
+  const personDuration = config.value.personDuration
+    ? config.value.personDuration * 1000
+    : SPEED_CONFIG[config.value.autoCompleteSpeed] || 2000
+
+  const totalTime = (count * personDuration) / 1000 // 转换为秒
+
+  if (totalTime < 60) {
+    return `${Math.round(totalTime)}秒`
+  } else {
+    const minutes = Math.floor(totalTime / 60)
+    const seconds = Math.round(totalTime % 60)
+    return `${minutes}分${seconds}秒`
+  }
+}
+
+// 获取速度氛围描述
+function getSpeedAtmosphere(): string {
+  const speed = config.value.autoCompleteSpeed
+  switch (speed) {
+    case 'ceremonial':
+      return '🏛️ 典雅庄重，适合颁奖典礼等正式场合'
+    case 'dramatic':
+      return '🎭 戏剧张力，营造紧张刺激的氛围'
+    case 'comfortable':
+      return '😌 舒适自然，恰到好处的节奏感'
+    case 'quick':
+      return '⚡ 快速高效，干脆利落的抽奖体验'
+    default:
+      return '😌 舒适自然，恰到好处的节奏感'
+  }
 }
 </script>
 
@@ -987,5 +1039,32 @@ function updateAutoCompleteDuration(delta: number) {
   .mode-selector {
     flex-direction: column;
   }
+}
+
+/* 速度预览样式 */
+.speed-preview {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8a8a9a;
+  font-family: 'Share Tech Mono', monospace;
+  text-align: center;
+  padding: 8px;
+  background: rgba(0, 255, 249, 0.05);
+  border-radius: 4px;
+  border: 1px solid rgba(0, 255, 249, 0.2);
+}
+
+.speed-preview strong {
+  color: #00fff9;
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
+}
+
+.speed-atmosphere {
+  margin-top: 4px;
+  color: #ff00ff;
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.8;
 }
 </style>

@@ -31,9 +31,19 @@ export type LotteryMode = 'normal' | 'weighted' | 'group'
 export type AutoCompleteStopMode = 'smooth' | 'instant' | 'dramatic'
 
 /**
- * 自动完成速度
+ * 自动完成速度 - 每人显示秒数
  */
-export type AutoCompleteSpeed = 'slow' | 'normal' | 'fast' | 'very-fast'
+export type AutoCompleteSpeed = 'ceremonial' | 'dramatic' | 'comfortable' | 'quick'
+
+/**
+ * 速度配置映射
+ */
+export const SPEED_CONFIG: Record<AutoCompleteSpeed, number> = {
+  ceremonial: 3000,  // 典礼模式：每人3秒，庄重优雅
+  dramatic: 2000,    // 戏剧模式：每人2秒，富有张力
+  comfortable: 1500, // 舒适模式：每人1.5秒，恰到好处
+  quick: 1000,       // 快速模式：每人1秒，干脆利落
+}
 
 /**
  * 抽奖配置接口
@@ -48,6 +58,11 @@ export interface LotteryConfig {
   autoCompleteSpeed: AutoCompleteSpeed
   autoCompleteStopMode: AutoCompleteStopMode
   groupSettings?: { [department: string]: { prizeId: string; count: number }[] }
+
+  /**
+   * 每人显示的秒数（覆盖默认速度）
+   */
+  personDuration?: number
 }
 
 /**

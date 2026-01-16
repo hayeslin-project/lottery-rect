@@ -115,7 +115,7 @@
 import { ref, computed, watch, onUnmounted, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useLotteryStore } from '@/stores/lottery'
-import { createAnimationGenerator } from '@/utils/lottery'
+import { createAnimationGenerator, SPEED_CONFIG } from '@/utils/lottery'
 
 const store = useLotteryStore()
 const emit = defineEmits(['result', 'groupResult'])
@@ -283,21 +283,21 @@ function createExplosion(x: number, y: number, count: number = 30) {
 }
 
 // 获取动画速度（基于设置）
-function getAnimationSpeed(): number {
-  const baseSpeed = 20 // 基础速度（毫秒）
-
-  switch (config.value.autoCompleteSpeed) {
-    case 'slow':
-      return baseSpeed * 2 // 40ms
-    case 'normal':
-      return baseSpeed // 20ms
-    case 'fast':
-      return baseSpeed / 2 // 10ms
-    case 'very-fast':
-      return baseSpeed / 3 // 约7ms
-    default:
-      return baseSpeed
+function getPersonDuration(): number {
+  // 如果配置了自定义每人时长，使用配置的值
+  if (config.value.personDuration) {
+    return config.value.personDuration * 1000 // 转换为毫秒
   }
+
+  // 否则使用默认的速度配置
+  return SPEED_CONFIG[config.value.autoCompleteSpeed] || 2000
+}
+
+function getAnimationSpeed(): number {
+  // 将每人时长转换为动画帧间隔
+  const personDuration = getPersonDuration()
+  const updateCount = 30 // 每人更新次数
+  return personDuration / updateCount
 }
 
 // 进度动画
@@ -305,10 +305,15 @@ function animateProgress(timestamp: number) {
   if (!startTime) startTime = timestamp
   const elapsed = timestamp - startTime
 
-  // 如果是自动完成模式，使用设置的时间
-  const duration = config.value.enableAutoComplete
-    ? config.value.autoCompleteDuration * 1000
-    : ANIMATION_DURATION
+  // 如果是自动完成模式，使用基于人数的总时长
+  let duration: number
+  if (config.value.enableAutoComplete) {
+    const personDuration = getPersonDuration()
+    const totalWinners = currentPrize.value?.count || 1
+    duration = personDuration * totalWinners
+  } else {
+    duration = ANIMATION_DURATION
+  }
 
   progress.value = Math.min((elapsed / duration) * 100, 100)
 
