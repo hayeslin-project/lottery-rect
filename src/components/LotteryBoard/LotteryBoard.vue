@@ -76,16 +76,10 @@
           <span>停止</span>
         </button>
       </template>
-      <div v-else class="confirm-actions">
-        <button class="btn btn-secondary" @click="cancelLottery">
-          <span>取消</span>
-        </button>
-        <button
-          class="btn btn-success"
-          @click="confirmResult"
-        >
+      <div v-else>
+        <button class="btn btn-danger" @click="stopLotteryAndConfirm">
           <span class="btn-icon">✓</span>
-          <span>确认结果</span>
+          <span>停止并确认</span>
         </button>
       </div>
     </div>
@@ -441,7 +435,7 @@ function startLottery() {
 
   // 触发开始特效
   triggerEnergyBeam()
-  createExplosion(particleCanvas.value?.offsetWidth / 2 || 400, 100, 20)
+  createExplosion((particleCanvas.value?.offsetWidth || 800) / 2, 100, 20)
 
   // 如果开启了自动完成，设置定时器
   if (config.value.enableAutoComplete) {
@@ -457,59 +451,15 @@ function startLottery() {
       }, duration * 0.7) // 在70%时间时开始减速
     }
 
-    // 设置自动停止
+    // 设置自动停止并确认
     setTimeout(() => {
       if (store.isAnimating) {
-        stopLotteryWithAutoComplete()
+        stopLotteryAndConfirm()
       }
     }, duration)
   }
 }
 
-// 自动停止并确认结果
-function autoStopAndConfirm() {
-  if (animationTimer) {
-    clearInterval(animationTimer)
-    animationTimer = null
-  }
-
-  if (animationFrame.value) {
-    cancelAnimationFrame(animationFrame.value)
-    animationFrame.value = null
-  }
-
-  // 执行真正的抽奖
-  const selected = store.drawLottery()
-
-  if (selected.length > 0) {
-    displayNames.value = selected.map((p) => p.name)
-    tempWinners.value = selected
-    store.isAnimating = false
-
-    // 触发中奖特效
-    triggerWinEffect()
-
-    // 自动确认结果
-    setTimeout(() => {
-      store.confirmWinners(tempWinners.value)
-      emit('result', tempWinners.value)
-
-      // 清空状态，准备下一轮
-      setTimeout(() => {
-        displayNames.value = []
-        tempWinners.value = []
-        progress.value = 0
-
-        // 清理粒子
-        PARTICLES.length = 0
-      }, 1000)
-    }, 1000)
-  } else {
-    ElMessage.error('抽奖失败，请重试')
-    store.isAnimating = false
-    PARTICLES.length = 0
-  }
-}
 
 // 平滑减速动画
 function animateSmoothDeceleration() {
@@ -529,8 +479,7 @@ function animateSmoothDeceleration() {
     const elapsed = Date.now() - startTime
     const progress = Math.min(elapsed / duration, 1)
 
-    // 使用缓出函数计算当前速度（先慢后快再慢）
-    const easeOut = 1 - Math.pow(1 - progress, 3)
+    // 使用正弦函数计算当前速度（先慢后快再慢）
     const currentSpeed = baseSpeed * (1 + Math.sin(progress * Math.PI) * 2)
 
     animationTimer = window.setInterval(() => {
@@ -547,15 +496,15 @@ function animateSmoothDeceleration() {
       requestAnimationFrame(decelerate)
     } else {
       // 减速完成，可以停止
-      stopLotteryWithAutoComplete()
+      stopLotteryAndConfirm()
     }
   }
 
   decelerate()
 }
 
-// 带自动停止的抽奖停止
-function stopLotteryWithAutoComplete() {
+// 停止并自动确认抽奖结果
+function stopLotteryAndConfirm() {
   if (animationTimer) {
     clearInterval(animationTimer)
     animationTimer = null
@@ -572,7 +521,7 @@ function stopLotteryWithAutoComplete() {
   if (selected.length > 0) {
     displayNames.value = selected.map((p) => p.name)
     tempWinners.value = selected
-    store.isRunning = true
+    store.isRunning = false
     store.isAnimating = false
 
     // 根据停止模式触发不同的特效
@@ -584,8 +533,8 @@ function stopLotteryWithAutoComplete() {
         // 戏剧性停止 - 多重特效
         triggerWinEffect()
         createExplosion(
-          particleCanvas.value?.offsetWidth / 2 || 400,
-          particleCanvas.value?.offsetHeight / 2 || 300,
+          (particleCanvas.value?.offsetWidth || 800) / 2,
+          (particleCanvas.value?.offsetHeight || 600) / 2,
           80
         )
         // 强闪光
@@ -607,20 +556,18 @@ function stopLotteryWithAutoComplete() {
         break
     }
 
-    // 自动确认结果
+    // 立即确认结果
+    store.confirmWinners(tempWinners.value)
+    emit('result', tempWinners.value)
+
+    // 清空状态，准备下一轮
     setTimeout(() => {
-      store.confirmWinners(tempWinners.value)
-      emit('result', tempWinners.value)
+      displayNames.value = []
+      tempWinners.value = []
+      progress.value = 0
 
-      // 清空状态，准备下一轮
-      setTimeout(() => {
-        displayNames.value = []
-        tempWinners.value = []
-        progress.value = 0
-
-        // 清理粒子
-        PARTICLES.length = 0
-      }, 1000)
+      // 清理粒子
+      PARTICLES.length = 0
     }, 1000)
   } else {
     ElMessage.error('抽奖失败，请重试')
@@ -629,7 +576,13 @@ function stopLotteryWithAutoComplete() {
   }
 }
 
+// 手动停止抽奖（自动完成）
+function stopLottery() {
+  stopLotteryAndConfirm()
+}
+
 function cancelLottery() {
+  // 这个函数保留以备后用，但现在自动完成模式下不需要取消功能
   store.isRunning = false
   displayNames.value = []
   tempWinners.value = []
@@ -651,6 +604,7 @@ function cancelLottery() {
 }
 
 function confirmResult() {
+  // 这个函数保留以备后用，但现在自动完成模式下不需要手动确认
   store.confirmWinners(tempWinners.value)
   emit('result', tempWinners.value)
 
