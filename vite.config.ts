@@ -9,8 +9,20 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
+  base: process.env.NODE_ENV === 'production' ? './' : '/',
   server: {
     port: 3000,
     open: true
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'element-plus': ['element-plus'],
+          'vue-vendor': ['vue', 'pinia']
+        }
+      }
+    }
   }
 })

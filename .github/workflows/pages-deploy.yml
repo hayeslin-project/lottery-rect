@@ -4,6 +4,8 @@ on:
   push:
     branches: [ version2 ]
   workflow_dispatch:
+  pull_request:
+    branches: [ version2 ]
 
 jobs:
   deploy:
