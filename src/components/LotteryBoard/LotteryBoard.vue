@@ -581,8 +581,8 @@ function stopLottery() {
   stopLotteryAndConfirm()
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function cancelLottery() {
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const cancelLottery = () => {
   // 这个函数保留以备后用，但现在自动完成模式下不需要取消功能
   store.isRunning = false
   displayNames.value = []
@@ -605,7 +605,7 @@ function cancelLottery() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function confirmResult() {
+const confirmResult = () => {
   // 这个函数保留以备后用，但现在自动完成模式下不需要手动确认
   store.confirmWinners(tempWinners.value)
   emit('result', tempWinners.value)
