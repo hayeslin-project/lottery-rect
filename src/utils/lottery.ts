@@ -26,6 +26,16 @@ export interface Winner {
 export type LotteryMode = 'normal' | 'weighted' | 'group'
 
 /**
+ * 自动完成停止方式
+ */
+export type AutoCompleteStopMode = 'smooth' | 'instant' | 'dramatic'
+
+/**
+ * 自动完成速度
+ */
+export type AutoCompleteSpeed = 'slow' | 'normal' | 'fast' | 'very-fast'
+
+/**
  * 抽奖配置接口
  */
 export interface LotteryConfig {
@@ -33,6 +43,10 @@ export interface LotteryConfig {
   prizes: Prize[]
   allowRepeat: boolean
   enableVoice: boolean
+  enableAutoComplete: boolean
+  autoCompleteDuration: number
+  autoCompleteSpeed: AutoCompleteSpeed
+  autoCompleteStopMode: AutoCompleteStopMode
   groupSettings?: { [department: string]: { prizeId: string; count: number }[] }
 }
 

@@ -39,6 +39,10 @@ export const useLotteryStore = defineStore('lottery', () => {
     ],
     allowRepeat: false,
     enableVoice: false,
+    enableAutoComplete: false,
+    autoCompleteDuration: 10,
+    autoCompleteSpeed: 'normal',
+    autoCompleteStopMode: 'smooth',
   })
 
   // 当前选择的奖项

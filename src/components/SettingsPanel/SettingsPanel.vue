@@ -103,6 +103,46 @@
           <span class="switch-slider"></span>
           <span class="switch-label">语音播报</span>
         </label>
+        <div class="auto-complete-section">
+          <label class="option-switch">
+            <input type="checkbox" v-model="config.enableAutoComplete" />
+            <span class="switch-slider"></span>
+            <span class="switch-label">自动完成抽奖</span>
+          </label>
+          <div v-if="config.enableAutoComplete" class="auto-complete-settings">
+            <div class="auto-complete-item">
+              <label class="setting-label">抽奖时长（秒）</label>
+              <div class="time-input">
+                <button class="time-btn" @click.stop="updateAutoCompleteDuration(-1)">−</button>
+                <input
+                  type="number"
+                  v-model.number="config.autoCompleteDuration"
+                  min="3"
+                  max="30"
+                  step="1"
+                />
+                <button class="time-btn" @click.stop="updateAutoCompleteDuration(1)">+</button>
+              </div>
+            </div>
+            <div class="auto-complete-item">
+              <label class="setting-label">抽奖速度</label>
+              <select v-model="config.autoCompleteSpeed" class="speed-select">
+                <option value="slow">慢速（每秒5个）</option>
+                <option value="normal">正常（每秒10个）</option>
+                <option value="fast">快速（每秒20个）</option>
+                <option value="very-fast">极速（每秒30个）</option>
+              </select>
+            </div>
+            <div class="auto-complete-item">
+              <label class="setting-label">停止方式</label>
+              <select v-model="config.autoCompleteStopMode" class="mode-select">
+                <option value="smooth">平滑停止</option>
+                <option value="instant">立即停止</option>
+                <option value="dramatic">戏剧性停止</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -262,6 +302,13 @@ function removePrize(prizeId: string) {
       store.setCurrentPrize(firstPrize.id)
     }
   }
+}
+
+// 更新自动完成时长
+function updateAutoCompleteDuration(delta: number) {
+  const current = config.value.autoCompleteDuration || 10
+  const newValue = Math.max(3, Math.min(30, current + delta))
+  store.updateConfig({ autoCompleteDuration: newValue })
 }
 </script>
 
@@ -686,6 +733,110 @@ function removePrize(prizeId: string) {
   color: #e0e0e0;
   font-weight: 500;
   font-family: 'Share Tech Mono', monospace;
+}
+
+/* 自动完成设置 - Cyberpunk */
+.auto-complete-section {
+  margin-top: 16px;
+}
+
+.auto-complete-settings {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(0, 255, 249, 0.03);
+  border: 1px solid rgba(0, 255, 249, 0.2);
+  border-radius: 4px;
+}
+
+.auto-complete-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.auto-complete-item:last-child {
+  margin-bottom: 0;
+}
+
+.setting-label {
+  font-size: 13px;
+  color: #00fff9;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: 500;
+}
+
+.time-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: rgba(0, 255, 249, 0.1);
+  border: 1px solid #00fff9;
+  color: #00fff9;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-btn:hover {
+  background: rgba(0, 255, 249, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 249, 0.4);
+}
+
+.time-input input[type="number"] {
+  width: 60px;
+  padding: 6px 8px;
+  background: rgba(0, 255, 249, 0.05);
+  border: 1px solid rgba(0, 255, 249, 0.3);
+  border-radius: 4px;
+  color: #00fff9;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  font-family: 'Orbitron', monospace;
+  transition: all 0.3s;
+}
+
+.time-input input[type="number"]:focus {
+  outline: none;
+  border-color: #00fff9;
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.3);
+}
+
+.speed-select,
+.mode-select {
+  padding: 6px 12px;
+  background: rgba(0, 255, 249, 0.05);
+  border: 1px solid rgba(0, 255, 249, 0.3);
+  border-radius: 4px;
+  color: #00fff9;
+  font-size: 13px;
+  font-family: 'Share Tech Mono', monospace;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.speed-select:hover,
+.mode-select:hover {
+  background: rgba(0, 255, 249, 0.1);
+  border-color: #00fff9;
+  box-shadow: 0 0 10px rgba(0, 255, 249, 0.3);
+}
+
+.speed-select option,
+.mode-select option {
+  background: #0a0a0f;
+  color: #00fff9;
 }
 
 /* 统计信息 - Cyberpunk */

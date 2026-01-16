@@ -209,19 +209,11 @@ const historyPrizeWinners = computed(() => {
 function handleResult(winners: any[]) {
   currentResult.value = winners
   showResultDialog.value = true
-
-  setTimeout(() => {
-    showResultDialog.value = false
-  }, 2500)
 }
 
 function handleGroupResult(results: any[]) {
   currentGroupResult.value = results
   showGroupResultDialog.value = true
-
-  setTimeout(() => {
-    showGroupResultDialog.value = false
-  }, 3500)
 }
 
 function viewHistory(index: number) {
