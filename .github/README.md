@@ -2,7 +2,7 @@
 
 ## 工作流概述
 
-本项目包含了三个 GitHub Actions 工作流：
+本项目包含了四个 GitHub Actions 工作流：
 
 ### 1. CI/CD Pipeline (ci.yml)
 - **触发条件**: 推送到 master/main/version2 分支或创建 PR
@@ -21,7 +21,14 @@
   - 创建 GitHub Release
   - 上传构建产物和压缩包
 
-### 3. Update Dependencies (update-dependencies.yml)
+### 3. Pages Deployment (pages.yml) - 推荐
+- **触发条件**: 推送到 version2 分支或手动触发
+- **功能**:
+  - 构建项目
+  - 直接部署到 GitHub Pages
+  - 使用最新的 Actions v4
+
+### 4. Update Dependencies (update-dependencies.yml)
 - **触发条件**: 每周一凌晨 2 点自动运行，或手动触发
 - **功能**:
   - 检查并更新过时的依赖包
