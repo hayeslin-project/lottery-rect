@@ -21,12 +21,13 @@
   - 创建 GitHub Release
   - 上传构建产物和压缩包
 
-### 3. Pages Deployment (pages.yml) - 推荐
+### 3. Pages Deployment (pages-deploy.yml) - 推荐
 - **触发条件**: 推送到 version2 分支或手动触发
 - **功能**:
   - 构建项目
   - 直接部署到 GitHub Pages
   - 使用最新的 Actions v4
+  - 简化的配置，避免错误
 
 ### 4. Update Dependencies (update-dependencies.yml)
 - **触发条件**: 每周一凌晨 2 点自动运行，或手动触发
