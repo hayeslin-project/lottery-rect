@@ -279,7 +279,7 @@ function initParticles() {
       if (this.y < 0 || this.y > canvas.height) this.vy *= -1
     }
 
-    draw() {
+    draw(ctx: CanvasRenderingContext2D) {
       ctx.beginPath()
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
       ctx.fillStyle = this.color
@@ -292,11 +292,12 @@ function initParticles() {
   }
 
   function animate() {
+    if (!ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     for (let i = 0; i < particles.length; i++) {
       particles[i].update()
-      particles[i].draw()
+      particles[i].draw(ctx)
 
       // 连线
       for (let j = i + 1; j < particles.length; j++) {

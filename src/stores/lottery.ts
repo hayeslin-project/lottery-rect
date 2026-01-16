@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Participant } from '@/utils/csv'
-import type { Prize, Winner, LotteryConfig, LotteryMode } from '@/utils/lottery'
+import type { Prize, Winner, LotteryConfig } from '@/utils/lottery'
 import { normalLottery, weightedLottery, groupLottery, speak } from '@/utils/lottery'
 
 export const useLotteryStore = defineStore('lottery', () => {

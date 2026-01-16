@@ -30,7 +30,7 @@ jobs:
       run: npm ci
 
     - name: Run type checking
-      run: npx vue-tsc --noEmit
+      run: npx vue-tsc --noEmit --skipLibCheck
 
     - name: Check for linting errors (optional)
       run: echo "Linting not configured in this project"

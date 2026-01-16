@@ -581,6 +581,7 @@ function stopLottery() {
   stopLotteryAndConfirm()
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function cancelLottery() {
   // 这个函数保留以备后用，但现在自动完成模式下不需要取消功能
   store.isRunning = false
@@ -603,6 +604,7 @@ function cancelLottery() {
   PARTICLES.length = 0
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function confirmResult() {
   // 这个函数保留以备后用，但现在自动完成模式下不需要手动确认
   store.confirmWinners(tempWinners.value)

@@ -16,11 +16,11 @@ export interface Participant {
  * CSV 列映射配置
  */
 export interface ColumnMapping {
-  id?: string
+  id: string
   name: string
-  phone?: string
-  department?: string
-  weight?: string
+  phone: string
+  department: string
+  weight: string
 }
 
 /**
@@ -30,14 +30,14 @@ export function parseCSV(file: File): Promise<string[][]> {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       encoding: 'UTF-8',
-      complete: (results) => {
+      complete: (results: any) => {
         if (results.data && results.data.length > 0) {
           resolve(results.data as string[][])
         } else {
           reject(new Error('CSV文件为空'))
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         reject(error)
       },
     })
@@ -110,7 +110,13 @@ export function transformToParticipants(
  * 自动检测列映射
  */
 export function autoDetectColumns(headers: string[]): ColumnMapping {
-  const result: ColumnMapping = { name: '' }
+  const result: ColumnMapping = {
+    id: '',
+    name: '',
+    phone: '',
+    department: '',
+    weight: ''
+  }
 
   // 常见的列名模式
   const patterns = {

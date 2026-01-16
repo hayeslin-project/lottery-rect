@@ -107,7 +107,7 @@
         <div class="section-header">
           <h3>👥 名单预览 (共 {{ participants.length }} 人)</h3>
           <div class="actions">
-            <button class="action-btn" @click="loadSampleData">
+            <button class="action-btn" @click="() => loadSampleData()">
               <span>📋</span>
               <span>示例数据</span>
             </button>
