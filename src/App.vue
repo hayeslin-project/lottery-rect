@@ -91,8 +91,9 @@
     </div>
 
     <!-- 中奖结果弹窗 -->
-    <div v-if="showResultDialog" class="modal-overlay" @click="showResultDialog = false">
+    <div v-if="showResultDialog" class="modal-overlay">
       <div class="result-modal" @click.stop>
+        <button class="result-close-btn" @click="showResultDialog = false">✕</button>
         <div class="result-header">🎉 恭喜中奖 🎉</div>
         <div class="result-body">
           <div v-for="winner in currentResult" :key="winner.id" class="result-card">
@@ -100,12 +101,14 @@
             <span v-if="winner.department" class="winner-dept">{{ winner.department }}</span>
           </div>
         </div>
+        <button class="result-confirm-btn" @click="showResultDialog = false">确定</button>
       </div>
     </div>
 
     <!-- 分组抽奖结果弹窗 -->
-    <div v-if="showGroupResultDialog" class="modal-overlay" @click="showGroupResultDialog = false">
+    <div v-if="showGroupResultDialog" class="modal-overlay">
       <div class="result-modal group-modal" @click.stop>
+        <button class="result-close-btn" @click="showGroupResultDialog = false">✕</button>
         <div class="result-header">🎉 分组抽奖结果 🎉</div>
         <div class="group-result-body">
           <div
@@ -125,6 +128,7 @@
             </div>
           </div>
         </div>
+        <button class="result-confirm-btn" @click="showGroupResultDialog = false">确定</button>
       </div>
     </div>
 
@@ -209,19 +213,11 @@ const historyPrizeWinners = computed(() => {
 function handleResult(winners: any[]) {
   currentResult.value = winners
   showResultDialog.value = true
-
-  setTimeout(() => {
-    showResultDialog.value = false
-  }, 2500)
 }
 
 function handleGroupResult(results: any[]) {
   currentGroupResult.value = results
   showGroupResultDialog.value = true
-
-  setTimeout(() => {
-    showGroupResultDialog.value = false
-  }, 3500)
 }
 
 function viewHistory(index: number) {
@@ -603,6 +599,7 @@ function initParticles() {
 
 /* Result modal */
 .result-modal {
+  position: relative;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
   border-radius: 24px;
   padding: 40px;
@@ -610,6 +607,48 @@ function initParticles() {
   animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.result-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.result-confirm-btn {
+  margin-top: 24px;
+  padding: 14px 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.result-confirm-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .result-header {

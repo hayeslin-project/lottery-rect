@@ -220,8 +220,9 @@ function confirmResult() {
 function startGroupLottery() {
   const groupSettings: Record<string, any> = {}
 
-  const enabledDepts = Object.keys(groupSettings).filter(
-    (dept) => (window as any).groupSettingsEnabled?.[dept]
+  // 从 store 获取分组设置
+  const enabledDepts = Object.keys(store.groupSettingsEnabled).filter(
+    (dept) => store.groupSettingsEnabled[dept]
   )
 
   if (enabledDepts.length === 0) {
@@ -229,11 +230,9 @@ function startGroupLottery() {
     return
   }
 
-  const counts = (window as any).groupCounts || {}
-
   for (const dept of enabledDepts) {
     const deptCounts: any[] = []
-    const prizeSettings = counts[dept] || {}
+    const prizeSettings = store.groupCounts[dept] || {}
 
     for (const prize of config.value.prizes) {
       const count = prizeSettings[prize.id] || 0

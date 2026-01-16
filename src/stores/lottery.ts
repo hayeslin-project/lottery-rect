@@ -29,6 +29,10 @@ export const useLotteryStore = defineStore('lottery', () => {
     weight: '',
   })
 
+  // 分组抽奖设置
+  const groupSettingsEnabled = ref<Record<string, boolean>>({})
+  const groupCounts = ref<Record<string, Record<string, number>>>({})
+
   // 抽奖配置
   const config = ref<LotteryConfig>({
     mode: 'normal',
@@ -280,6 +284,8 @@ export const useLotteryStore = defineStore('lottery', () => {
     csvData,
     csvHeaders,
     columnMapping,
+    groupSettingsEnabled,
+    groupCounts,
     config,
     currentPrizeId,
     isRunning,

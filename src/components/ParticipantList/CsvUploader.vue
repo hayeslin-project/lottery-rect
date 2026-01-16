@@ -103,6 +103,10 @@
         <div class="section-header">
           <h3>👥 名单预览 (共 {{ participants.length }} 人)</h3>
           <div class="actions">
+            <button class="action-btn" @click="checkDuplicates">
+              <span>🔍</span>
+              <span>检查重复</span>
+            </button>
             <button class="action-btn" @click="loadSampleData">
               <span>📋</span>
               <span>示例数据</span>
@@ -115,6 +119,29 @@
               <span>🗑️</span>
               <span>清空</span>
             </button>
+          </div>
+        </div>
+
+        <!-- 重复检查结果 -->
+        <div v-if="duplicateResult" class="duplicate-alert" :class="duplicateResult.hasDuplicate ? 'warning' : 'success'">
+          <div class="alert-header">
+            <span class="alert-icon">{{ duplicateResult.hasDuplicate ? '⚠️' : '✅' }}</span>
+            <span class="alert-title">{{ duplicateResult.hasDuplicate ? '发现重复数据' : '无重复数据' }}</span>
+            <button v-if="duplicateResult.hasDuplicate" class="remove-duplicate-btn" @click="removeDuplicates">
+              <span>🗑️</span>
+              <span>移除重复项</span>
+            </button>
+            <button class="alert-close" @click="duplicateResult = null">✕</button>
+          </div>
+          <div v-if="duplicateResult.hasDuplicate" class="alert-body">
+            <div v-if="duplicateResult.duplicateIds.length > 0" class="duplicate-group">
+              <span class="duplicate-label">重复工号：</span>
+              <span class="duplicate-items">{{ duplicateResult.duplicateIds.join('、') }}</span>
+            </div>
+            <div v-if="duplicateResult.duplicateNames.length > 0" class="duplicate-group">
+              <span class="duplicate-label">重复姓名：</span>
+              <span class="duplicate-items">{{ duplicateResult.duplicateNames.join('、') }}</span>
+            </div>
           </div>
         </div>
 
@@ -148,12 +175,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useLotteryStore } from '@/stores/lottery'
 import { parseCSV, transformToParticipants, autoDetectColumns } from '@/utils/csv'
 
 const store = useLotteryStore()
+
+// 组件挂载时，如果没有参与者数据，自动加载示例数据
+onMounted(() => {
+  if (store.participants.length === 0) {
+    loadSampleDataSilent()
+  }
+})
 
 const csvHeaders = computed(() => store.csvHeaders)
 const participants = computed(() => store.participants)
@@ -165,6 +199,13 @@ const columnMapping = computed({
 const showAll = ref(false)
 const rawCsvData = ref<string[][]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
+
+// 重复检查结果
+const duplicateResult = ref<{
+  hasDuplicate: boolean
+  duplicateIds: string[]
+  duplicateNames: string[]
+} | null>(null)
 
 // 显示的参与者列表（分页）
 const displayParticipants = computed(() => {
@@ -253,55 +294,139 @@ function clearData() {
   store.setParticipants([])
   store.setCsvData([])
   rawCsvData.value = []
+  duplicateResult.value = null
 }
 
-function loadSampleData() {
-  // 示例 CSV 数据
-  const sampleData: string[][] = [
-    ['工号', '姓名', '手机号', '部门', '权重'],
-    ['1001', '张三', '13800138001', '技术部', '10'],
-    ['1002', '李四', '13800138002', '技术部', '8'],
-    ['1003', '王五', '13800138003', '市场部', '10'],
-    ['1004', '赵六', '13800138004', '市场部', '6'],
-    ['1005', '钱七', '13800138005', '技术部', '9'],
-    ['1006', '孙八', '13800138006', '财务部', '10'],
-    ['1007', '周九', '13800138007', '财务部', '7'],
-    ['1008', '吴十', '13800138008', '人事部', '10'],
-    ['1009', '郑十一', '13800138009', '技术部', '8'],
-    ['1010', '王十二', '13800138010', '市场部', '9'],
-    ['1011', '刘十三', '13800138011', '人事部', '6'],
-    ['1012', '陈十四', '13800138012', '技术部', '10'],
-    ['1013', '杨十五', '13800138013', '市场部', '8'],
-    ['1014', '黄十六', '13800138014', '财务部', '9'],
-    ['1015', '赵十七', '13800138015', '技术部', '10'],
-    ['1016', '吴十八', '13800138016', '人事部', '7'],
-    ['1017', '周十九', '13800138017', '市场部', '10'],
-    ['1018', '徐二十', '13800138018', '技术部', '8'],
-    ['1019', '孙二一', '13800138019', '财务部', '9'],
-    ['1020', '马二二', '13800138020', '市场部', '6'],
-    ['1021', '朱二三', '13800138021', '技术部', '10'],
-    ['1022', '胡二四', '13800138022', '人事部', '8'],
-    ['1023', '郭二五', '13800138023', '市场部', '9'],
-    ['1024', '林二六', '13800138024', '财务部', '7'],
-    ['1025', '何二七', '13800138025', '技术部', '10'],
-  ]
+// 检查重复数据（工号和姓名）
+function checkDuplicates() {
+  const idMap = new Map<string, number>()
+  const nameMap = new Map<string, number>()
+  const duplicateIds: string[] = []
+  const duplicateNames: string[] = []
 
+  for (const p of participants.value) {
+    // 检查工号重复
+    if (p.id) {
+      const count = idMap.get(p.id) || 0
+      idMap.set(p.id, count + 1)
+    }
+    // 检查姓名重复
+    if (p.name) {
+      const count = nameMap.get(p.name) || 0
+      nameMap.set(p.name, count + 1)
+    }
+  }
+
+  // 收集重复的工号
+  for (const [id, count] of idMap) {
+    if (count > 1) {
+      duplicateIds.push(`${id}(${count}次)`)
+    }
+  }
+
+  // 收集重复的姓名
+  for (const [name, count] of nameMap) {
+    if (count > 1) {
+      duplicateNames.push(`${name}(${count}次)`)
+    }
+  }
+
+  duplicateResult.value = {
+    hasDuplicate: duplicateIds.length > 0 || duplicateNames.length > 0,
+    duplicateIds,
+    duplicateNames,
+  }
+
+  if (duplicateResult.value.hasDuplicate) {
+    ElMessage.warning('发现重复数据，请检查')
+  } else {
+    ElMessage.success('检查完成，无重复数据')
+  }
+}
+
+// 移除重复项，只保留第一次出现的记录
+function removeDuplicates() {
+  const seenIds = new Set<string>()
+  const seenNames = new Set<string>()
+  const uniqueParticipants = []
+  let removedCount = 0
+
+  for (const p of participants.value) {
+    const idKey = p.id || ''
+    const nameKey = p.name || ''
+
+    // 检查是否重复（工号或姓名已存在）
+    const isDuplicateId = idKey && seenIds.has(idKey)
+    const isDuplicateName = nameKey && seenNames.has(nameKey)
+
+    if (isDuplicateId || isDuplicateName) {
+      removedCount++
+      continue
+    }
+
+    // 记录已出现的工号和姓名
+    if (idKey) seenIds.add(idKey)
+    if (nameKey) seenNames.add(nameKey)
+
+    uniqueParticipants.push(p)
+  }
+
+  store.setParticipants(uniqueParticipants)
+  duplicateResult.value = null
+
+  ElMessage.success(`已移除 ${removedCount} 条重复数据，剩余 ${uniqueParticipants.length} 人`)
+}
+
+// 示例 CSV 数据
+const sampleData: string[][] = [
+  ['工号', '姓名', '手机号', '部门', '权重'],
+  ['1001', '张三', '13800138001', '技术部', '10'],
+  ['1002', '李四', '13800138002', '技术部', '8'],
+  ['1003', '王五', '13800138003', '市场部', '10'],
+  ['1004', '赵六', '13800138004', '市场部', '6'],
+  ['1005', '钱七', '13800138005', '技术部', '9'],
+  ['1006', '孙八', '13800138006', '财务部', '10'],
+  ['1007', '周九', '13800138007', '财务部', '7'],
+  ['1008', '吴十', '13800138008', '人事部', '10'],
+  ['1009', '郑十一', '13800138009', '技术部', '8'],
+  ['1010', '王十二', '13800138010', '市场部', '9'],
+  ['1011', '刘十三', '13800138011', '人事部', '6'],
+  ['1012', '陈十四', '13800138012', '技术部', '10'],
+  ['1013', '杨十五', '13800138013', '市场部', '8'],
+  ['1014', '黄十六', '13800138014', '财务部', '9'],
+  ['1015', '赵十七', '13800138015', '技术部', '10'],
+  ['1016', '吴十八', '13800138016', '人事部', '7'],
+  ['1017', '周十九', '13800138017', '市场部', '10'],
+  ['1018', '徐二十', '13800138018', '技术部', '8'],
+  ['1019', '孙二一', '13800138019', '财务部', '9'],
+  ['1020', '马二二', '13800138020', '市场部', '6'],
+  ['1021', '朱二三', '13800138021', '技术部', '10'],
+  ['1022', '胡二四', '13800138022', '人事部', '8'],
+  ['1023', '郭二五', '13800138023', '市场部', '9'],
+  ['1024', '林二六', '13800138024', '财务部', '7'],
+  ['1025', '何二七', '13800138025', '技术部', '10'],
+]
+
+// 示例数据的列映射
+const sampleMapping = {
+  name: '姓名',
+  id: '工号',
+  phone: '手机号',
+  department: '部门',
+  weight: '权重',
+}
+
+// 静默加载示例数据（组件初始化时使用，不显示提示）
+function loadSampleDataSilent() {
   rawCsvData.value = sampleData
   store.setCsvData(sampleData)
-
-  // 设置列映射
-  const mapping = {
-    name: '姓名',
-    id: '工号',
-    phone: '手机号',
-    department: '部门',
-    weight: '权重',
-  }
-  store.setColumnMapping(mapping)
-
-  // 应用映射
+  store.setColumnMapping(sampleMapping)
   applyMapping()
+}
 
+// 手动加载示例数据（用户点击按钮时使用，显示提示）
+function loadSampleData() {
+  loadSampleDataSilent()
   ElMessage.success(`示例数据加载成功，共 ${sampleData.length - 1} 人`)
 }
 </script>
@@ -476,6 +601,112 @@ function loadSampleData() {
 /* 预览区域 */
 .preview-section {
   margin-top: 32px;
+}
+
+/* 重复检查提示 */
+.duplicate-alert {
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.duplicate-alert.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.duplicate-alert.success {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.duplicate-alert.warning .alert-header {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.duplicate-alert.success .alert-header {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.alert-icon {
+  font-size: 18px;
+}
+
+.alert-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.remove-duplicate-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 16px;
+  color: #ef4444;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 8px;
+}
+
+.remove-duplicate-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.alert-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #9ca3af;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.alert-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.alert-body {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.duplicate-group {
+  margin-bottom: 8px;
+}
+
+.duplicate-group:last-child {
+  margin-bottom: 0;
+}
+
+.duplicate-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #f59e0b;
+  margin-right: 8px;
+}
+
+.duplicate-items {
+  font-size: 13px;
+  color: #e2e8f0;
 }
 
 .actions {

@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useLotteryStore } from '@/stores/lottery'
 import type { LotteryMode } from '@/utils/lottery'
 
@@ -170,32 +170,28 @@ const modes = [
   { value: 'group' as LotteryMode, name: '分组抽奖', icon: '👥' },
 ]
 
-// 分组设置
-const groupSettingsEnabled = ref<Record<string, boolean>>({})
-const groupCounts = ref<Record<string, Record<string, number>>>({})
+// 分组设置（从 store 获取）
+const groupSettingsEnabled = computed(() => store.groupSettingsEnabled)
+const groupCounts = computed(() => store.groupCounts)
 
 // 监听部门变化，初始化分组设置
 watch(
   departments,
   (newDepts) => {
-    const newSettings: Record<string, boolean> = {}
-    const newCounts: Record<string, Record<string, number>> = {}
-
     newDepts.forEach((dept) => {
-      newSettings[dept] = groupSettingsEnabled.value[dept] !== undefined
-        ? groupSettingsEnabled.value[dept]
-        : false
+      if (groupSettingsEnabled.value[dept] === undefined) {
+        groupSettingsEnabled.value[dept] = false
+      }
 
-      newCounts[dept] = groupCounts.value[dept] || {}
+      if (!groupCounts.value[dept]) {
+        groupCounts.value[dept] = {}
+      }
       config.value.prizes.forEach((prize) => {
-        if (newCounts[dept][prize.id] === undefined) {
-          newCounts[dept][prize.id] = 0
+        if (groupCounts.value[dept][prize.id] === undefined) {
+          groupCounts.value[dept][prize.id] = 0
         }
       })
     })
-
-    groupSettingsEnabled.value = newSettings
-    groupCounts.value = newCounts
   },
   { immediate: true }
 )
@@ -212,10 +208,10 @@ function getGroupCount(dept: string, prizeId: string) {
 
 // 设置分组计数
 function setGroupCount(dept: string, prizeId: string, value: number) {
-  if (!groupCounts.value[dept]) {
-    groupCounts.value[dept] = {}
+  if (!store.groupCounts[dept]) {
+    store.groupCounts[dept] = {}
   }
-  groupCounts.value[dept][prizeId] = value
+  store.groupCounts[dept][prizeId] = value
 }
 
 // 调整分组计数
